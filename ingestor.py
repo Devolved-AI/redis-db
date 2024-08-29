@@ -74,6 +74,7 @@ def process_blocks(block_numbers):
             if block_data:
                 r.set(f'block:{block_number}', json.dumps(block_data))
                 r.publish('new_block', f"Block Number: {block_number}")
+                r.set('latest_block_number', block_number)  # Update the last processed block number
                 logging.info(f"Ingested Block {block_number}")
 
 # Fetch all historical data
@@ -81,8 +82,11 @@ async def fetch_all_historical_data():
     logging.info("Fetching all historical data...")
     
     latest_block_number = get_latest_block_number()
+
+    # Fetch the last processed block number from Redis or start from block 1
+    last_processed_block = int(r.get('latest_block_number') or 0)
+    block_number = last_processed_block + 1
     
-    block_number = 1
     while block_number <= latest_block_number:
         block_numbers = range(block_number, min(block_number + BATCH_SIZE, latest_block_number + 1))
         process_blocks(block_numbers)
@@ -92,13 +96,15 @@ async def fetch_all_historical_data():
 async def listen_realtime_data():
     logging.info("Starting to listen for real-time data...")
     while True:
-        latest_block_number = r.get('latest_block_number') or 1
-        block_number = int(latest_block_number) + 1
+        # Fetch the last processed block number from Redis or start from block 1
+        last_processed_block = int(r.get('latest_block_number') or 0)
+        block_number = last_processed_block + 1
+        
         _, block_data = fetch_block_data(block_number)
         if block_data:
             r.set(f'block:{block_number}', json.dumps(block_data))
             r.publish('new_block', f"Block Number: {block_number}")
-            r.set('latest_block_number', block_number)
+            r.set('latest_block_number', block_number)  # Update the last processed block number
             logging.info(f"Ingested Block {block_number}")
         await asyncio.sleep(2)  # Adjust this to control polling frequency
 
