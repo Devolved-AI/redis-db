@@ -84,6 +84,26 @@ You can configure various parameters in the script, such as:
 - **`MAX_WORKERS`:** Number of parallel workers to use for fetching blocks.
 - **`RPC_ENDPOINT`:** URL of the Substrate RPC endpoint.
 
+## Query Argochain by Block Number
+
+Currently, the script supports queries by block number; however, the output is data rich when a block number is queried. Run this command after you started the Redis server:
+```
+redis-cli get block:[blocknumber] | jq .
+```
+
+Specify a block number for **blocknumber** above.
+
+For example, if you query block 23867 on Argochain, you will run
+
+```
+redis-cli get block:23867 | jq .
+```
+
+And the output is below:
+
+<img width="1283" alt="Screenshot 2024-08-29 at 2 53 56 PM" src="https://github.com/user-attachments/assets/cc2792fc-60b0-4906-9369-cc0b9fa60c21">
+
+
 ## Troubleshooting
 
 ### Common Issues
