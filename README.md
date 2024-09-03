@@ -103,6 +103,26 @@ And the output is below:
 
 <img width="1283" alt="Screenshot 2024-08-29 at 2 53 56 PM" src="https://github.com/user-attachments/assets/cc2792fc-60b0-4906-9369-cc0b9fa60c21">
 
+However, if you wish to query another parameter (like parentHash, for example), keep in mind Redis stores the data of a block in a serialized JSON object, not as keys and suffixes.  That being said, you can query parentHash, extrinsics, logs, etc. **by passing them as a jq suffix.** 
+
+Run the following commands below to get information on the block's data:
+
+```
+# Remember to specify the block number in place of [blocknumber] below:
+
+# Get the parentHsh of the block
+redis-cli GET block:[blocknumber] | jq '.block.header.parentHash' 
+
+# Get the stateRoot of the block
+redis-cli GET block:[blocknumber] | jq '.block.header.stateRoot'
+
+# Get the logs of the block
+redis-cli GET block:[blocknumber] | jq '.block.header.digest.logs[]'
+
+# Get the extrinsics of the block
+redis-cli GET block:[blocknumber] | jq '.block.extrinsics[]'
+``` 
+
 
 ## Troubleshooting
 
